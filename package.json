@@ -1,14 +1,14 @@
 {
   "name": "hyperdrive-timeseries",
   "version": "1.0.0",
-  "description": "",
+  "description": "Save timeseries data into hyperdrive",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["hyperdrive", "timeseries"],
+  "author": "Poga Po<poga.bahamut@gmail.com>",
+  "license": "MIT",
   "dependencies": {
     "later": "^1.2.0",
     "stream-to-string": "^1.1.0",
