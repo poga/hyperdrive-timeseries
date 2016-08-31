@@ -1,7 +1,7 @@
 {
   "name": "hyperdrive-timeseries",
   "version": "1.0.0",
-  "description": "Save timeseries data into hyperdrive",
+  "description": "timeseries data in hyperdrive",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha"
