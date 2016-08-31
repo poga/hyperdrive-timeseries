@@ -20,7 +20,8 @@ db.on('flush', (key, size) => {
 var begin = Date.now()
 db.push('foo') // push a value with timestamp: now
 
-db.range(begin, Date.now(), (err, values) => {
+var end = Date.now()
+db.range(begin, end, (err, values) => {
   console.log(values) // [{ts: ..., data: 'foo'}]
 })
 ```
