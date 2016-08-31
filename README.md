@@ -32,6 +32,10 @@ db.range(begin, end, (err, values) => {
 npm i hyperdrive-timeseries
 ```
 
+## TODOs
+
+- [ ] store data in a space-efficient way. maybe [gorilla](https://blog.acolyer.org/2016/05/03/gorilla-a-fast-scalable-in-memory-time-series-database/)
+
 ## License
 
 MIT
