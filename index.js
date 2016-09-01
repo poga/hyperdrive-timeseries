@@ -3,6 +3,7 @@ const later = require('later')
 var inherits = require('inherits')
 const toStream = require('string-to-stream')
 const toString = require('stream-to-string')
+const async = require('async')
 
 module.exports = HyperdriveTimeseries
 
@@ -38,25 +39,29 @@ HyperdriveTimeseries.prototype.close = function () {
 
 HyperdriveTimeseries.prototype.range = function (start, end, cb) {
   // TODO might be easier if we have snapshot?
-  var entries = this._archive.list({live: true})
+  var entries = this._archive.list({live: false})
   var results = []
+  var keysToRead = []
 
   entries.on('data', (x) => {
     var entryTime = new Date(parseInt(x.name, 10)).getTime()
     if ((entryTime + this._intervalSecond) * 1000 >= start && entryTime * 1000 < end) {
-      toString(this._archive.createFileReadStream(x.name), (err, body) => {
-        if (err) cb(err)
-
-        JSON.parse(body).forEach(x => { results.push(x) })
-
-        if (entryTime * 1000 < end) { // this is the last block we need to find
-          entries.destroy()
-        }
-      })
+      keysToRead.push(x.name)
     }
   })
 
-  entries.on('close', () => {
-    cb(null, results)
+  entries.on('end', () => {
+    async.each(keysToRead, (key, next) => {
+      toString(this._archive.createFileReadStream(key), (err, body) => {
+        if (err) next(err)
+
+        JSON.parse(body).forEach(x => { results.push(x) })
+        next()
+      })
+    }, (err) => {
+      if (err) cb(err)
+
+      cb(null, results)
+    })
   })
 }

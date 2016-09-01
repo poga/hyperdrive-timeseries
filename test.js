@@ -49,7 +49,6 @@ describe('HyperdriveTimeseries', function () {
 
       db.once('flush', (key, size) => {
         db.range(start, Date.now(), (err, result) => {
-          console.log(result)
           assert.equal(err, null)
           assert.equal(result[0].data, 'foo')
           done()
