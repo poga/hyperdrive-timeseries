@@ -55,5 +55,21 @@ describe('HyperdriveTimeseries', function () {
         })
       })
     })
+
+    it('should ok when some interval is empty', function (done) {
+      this.timeout(5000)
+      var start = Date.now()
+      setTimeout(() => {
+        db.push('foo')
+
+        db.once('flush', (key, size) => {
+          db.range(start, Date.now(), (err, result) => {
+            assert.equal(err, null)
+            assert.equal(result[0].data, 'foo')
+            done()
+          })
+        })
+      }, 2000)
+    })
   })
 })

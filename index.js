@@ -16,6 +16,8 @@ function HyperdriveTimeseries (archive, opts) {
   later.date.localTime()
 
   this._timer = later.setInterval(() => {
+    if (this._buffer.length === 0) return
+
     var key = Math.floor(new Date(later.schedule(this._interval).prev(1)).getTime() / 1000)
     var ws = this._archive.createFileWriteStream(`${key}`)
 
