@@ -35,6 +35,7 @@ npm i hyperdrive-timeseries
 ## TODOs
 
 - [ ] store data in a space-efficient way. maybe [gorilla](https://blog.acolyer.org/2016/05/03/gorilla-a-fast-scalable-in-memory-time-series-database/)
+- [ ] a [Prometheus](https://prometheus.io)-like data model
 
 ## License
 
