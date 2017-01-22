@@ -40,18 +40,16 @@ HyperdriveTimeseries.prototype.close = function () {
 
 HyperdriveTimeseries.prototype.range = function (start, end, cb) {
   // TODO might be easier if we have snapshot?
-  var entries = this._archive.list({live: false})
-  var results = []
-  var keysToRead = []
+  this._archive.list((err, entries) => {
+    var results = []
+    var keysToRead = []
+    entries.forEach(e => {
+      var entryTime = new Date(parseInt(e.name, 10)).getTime()
+      if ((entryTime + this._intervalSecond) * 1000 >= start && entryTime * 1000 < end) {
+        keysToRead.push(e.name)
+      }
+    })
 
-  entries.on('data', (x) => {
-    var entryTime = new Date(parseInt(x.name, 10)).getTime()
-    if ((entryTime + this._intervalSecond) * 1000 >= start && entryTime * 1000 < end) {
-      keysToRead.push(x.name)
-    }
-  })
-
-  entries.on('end', () => {
     async.each(keysToRead, (key, next) => {
       toString(this._archive.createFileReadStream(key), (err, body) => {
         if (err) next(err)
