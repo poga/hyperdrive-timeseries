@@ -1,9 +1,9 @@
 const events = require('events')
 const later = require('later')
-var inherits = require('inherits')
-const toStream = require('string-to-stream')
-const toString = require('stream-to-string')
+const inherits = require('inherits')
 const async = require('async')
+const ndjson = require('ndjson')
+const pump = require('pump')
 
 module.exports = HyperdriveTimeseries
 
@@ -19,8 +19,13 @@ function HyperdriveTimeseries (archive, opts) {
 
     var key = Math.floor(new Date(later.schedule(this._interval).prev(1)).getTime() / 1000)
     var ws = this._archive.createFileWriteStream(`${key}`)
+    var serialize = ndjson.serialize()
+    this._buffer.forEach(x => { serialize.write(x) })
+    serialize.end()
 
-    toStream(JSON.stringify(this._buffer)).pipe(ws).on('finish', () => {
+    pump(serialize, ws, err => {
+      if (err) this.emit('error', err)
+
       var pushed = this._buffer.length
       this._buffer = []
       this.emit('flush', key * 1000, pushed)
@@ -45,6 +50,7 @@ HyperdriveTimeseries.prototype.range = function (start, end, cb) {
 
     var results = []
     var keysToRead = []
+
     entries.forEach(e => {
       var entryTime = new Date(parseInt(e.name, 10)).getTime()
       if ((entryTime + this._intervalSecond) * 1000 >= start && entryTime * 1000 < end) {
@@ -53,12 +59,13 @@ HyperdriveTimeseries.prototype.range = function (start, end, cb) {
     })
 
     async.each(keysToRead, (key, next) => {
-      toString(this._archive.createFileReadStream(key), (err, body) => {
-        if (err) next(err)
-
-        JSON.parse(body).forEach(x => { results.push(x) })
+      var rs = this._archive.createFileReadStream(key)
+        .pipe(ndjson.parse())
+      rs.on('data', (data) => {
+        results.push(data)
         next()
       })
+      rs.on('end', next)
     }, (err) => {
       if (err) cb(err)
 
