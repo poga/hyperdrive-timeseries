@@ -41,6 +41,8 @@ HyperdriveTimeseries.prototype.close = function () {
 HyperdriveTimeseries.prototype.range = function (start, end, cb) {
   // TODO might be easier if we have snapshot?
   this._archive.list((err, entries) => {
+    if (err) return cb(err)
+
     var results = []
     var keysToRead = []
     entries.forEach(e => {
