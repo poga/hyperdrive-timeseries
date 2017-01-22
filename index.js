@@ -13,7 +13,6 @@ function HyperdriveTimeseries (archive, opts) {
   this._buffer = []
   this._intervalSecond = opts.interval
   this._interval = later.parse.recur().every(opts.interval).second()
-  later.date.localTime()
 
   this._timer = later.setInterval(() => {
     if (this._buffer.length === 0) return
